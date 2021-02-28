@@ -9,31 +9,28 @@ let screenHeight = 800;
 let ctr;
 let txt;
 
+var easycam;
 
 
-function settings() {
-    createCanvas(screenWidth, screenHeight, P3D);
-}
+
 
 function setup() {
 
-
+    createCanvas(screenWidth, screenHeight, WEBGL);
     background(255);
 
 
     //camera
-    //initCamera();
+    Dw.EasyCam.prototype.apply = function(n) {
+        var o = this.cam;
+        n = n || o.renderer,
+        n && (this.camEYE = this.getPosition(this.camEYE), this.camLAT = this.getCenter(this.camLAT), this.camRUP = this.getUpVector(this.camRUP), n._curCamera.camera(this.camEYE[0], this.camEYE[1], this.camEYE[2], this.camLAT[0], this.camLAT[1], this.camLAT[2], this.camRUP[0], this.camRUP[1], this.camRUP[2]))
+      };
 
-    //debug : load txt
+    createEasyCam();
+
     txt = "";
-    /*
-    let[] lines = loadlets("formula.txt");
-    for (let i = 0 ; i < lines.length; i++) {
-      txt += lines[i];
-    }
-    */
 
-    //Curve c = new Curve(new let(width/2,height/2), 100, 0.2);
     ctr = new Construction();
     console.log("setup done" + ctr);
 
@@ -49,6 +46,7 @@ function draw() {
 
     //debug   
     background(255);
+    
     ctr.drawConstruction();
 
 }
@@ -59,29 +57,12 @@ function draw() {
 
 function update() {
     //calcul texte...
+    txt = select("#user_text").value();
+
+    ctr = new Construction();
     ctr.parse(txt);
 
 }
-
-
-/*******************************************************************************/
-//INIT
-/*******************************************************************************/
-
-function initCamera() {
-    cam = new PeasyCam(this, 0, 0, 0, 100);
-    perspective(PI / 3.0, width / height, 1, 100000);
-    gpdh = cam.getPanDragHandler();
-    grdh = cam.getRotateDragHandler();
-    //cam.reset();
-    cam.rotateX(-PI / 3);
-
-    cam.setLeftDragHandler(grdh);
-    cam.setCenterDragHandler(grdh);
-    cam.setRightDragHandler(grdh);
-}
-
-
 
 
 
@@ -91,7 +72,7 @@ function initCamera() {
 /*******************************************************************************/
 function keyPressed() {
 
-    txt += key;
+    //txt += key;
     update();
 }
 

@@ -24,12 +24,12 @@ constructor(center, radius, nbPoints, texture, tilt, rotation, clr){
         //texture
         let r = i % 2 == 0 ? radius : radius + radius * texture;
 
-        let v = createVector(0, r);
-        v.rotate((TWO_PI / nbPoints) * i);
+        let v = new PVector(0, r);
+        v.rotateTo((TWO_PI / nbPoints) * i);
         this.points.push(v);
     }
 
-    console.log("curve created with params nbPoints: " + nbPoints + " radius: " + radius + "texture: " + texture + " tilt: " + tilt + " rotation: " + rotation);
+    console.log("curve created with params nbPoints: " + nbPoints + " radius: " + radius + "texture: " + texture + " tilt: " + tilt + " rotation: " + rotation + "offset: " + center.z);
 
 }
 
@@ -62,9 +62,9 @@ drawCurve() {
     for (let i = 0; i < this.nbPoints; i++) {
         curveVertex(this.points[i].x, this.points[i].y, this.points[i].z);
     }
-    //deux premiers polets
-    curveVertex(this.points[i].x, this.points[i].y, this.points[i].z);
-    curveVertex(this.points[i].x, this.points[i].y, this.points[i].z);
+    //deux premiers points
+    curveVertex(this.points[0].x, this.points[0].y, this.points[0].z);
+    curveVertex(this.points[1].x, this.points[1].y, this.points[1].z);
 
     endShape(CLOSE);
 

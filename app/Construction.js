@@ -29,8 +29,6 @@ class Param {
 }
 
 
-console.log("crrrrrr");
-
 class Construction {
 
 
@@ -54,7 +52,7 @@ class Construction {
 
 
 
-        this.center = createVector(0, 0, 0);
+        this.center = {x:0, y:0, z:0};
         this.txt;
         this.curves = new Array();
 
@@ -65,10 +63,10 @@ class Construction {
     /*******************************************************************************/
     parse(txt) {
         this.txt = txt.toUpperCase();
-        this.curves.clear();
+        this.curves = [];
 
 
-        for (let i = 0; i < this.txt.length(); i++) {
+        for (let i = 0; i < this.txt.length; i++) {
             let c = this.txt.charAt(i);
 
             switch (c) {
@@ -78,7 +76,8 @@ class Construction {
                     //get clr
                     let clr = color(this.r.value, this.g.value, this.b.value);
                     //create curve
-                    let newCurve = new Curve((creatVector(0, 0, offset.value)).add(this.center), this.radius.value, this.nbPoints.value, this.texture.value, this.tilt.value, this.rotation.value, clr);
+                    let newCenter = {x:this.center.x, y:this.center.y, z:this.center.z + this.offset.value};
+                    let newCurve = new Curve(newCenter, this.radius.value, this.nbPoints.value, this.texture.value, this.tilt.value, this.rotation.value, clr);
                     this.curves.push(newCurve);
                     //offset next center
                     this.offset.increase();
@@ -154,12 +153,12 @@ class Construction {
         //noFill();
         //strokeWeight(1);
 
-        /*
+        
         noStroke();
         for (let i = 0; i < this.curves.length; i++) {
             this.curves[i].drawCurve();
         }
-        */
+        
     }
 
 
