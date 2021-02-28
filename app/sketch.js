@@ -1,52 +1,99 @@
 
-// Keep track of our socket connection
-var socket;
+
+//dimensions
+let screenWidth = 800;
+let screenHeight = 800;
+
+
+//tmp
+let ctr;
+let txt;
+
+
+
+function settings() {
+    createCanvas(screenWidth, screenHeight, P3D);
+}
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  background(0);
-  // Start a socket connection to the server
-  // Some day we would run this server somewhere else
-  socket = io.connect('http://localhost:8080');
-  // We make a named event called 'mouse' and write an
-  // anonymous callback function
-  socket.on('mouse',
-    // When we receive data
-    function(data) {
-      console.log("Got: " + data.x + " " + data.y);
-      // Draw a blue circle
-      fill(0,0,255);
-      noStroke();
-      ellipse(data.x,data.y,80,80);
+
+
+    background(255);
+
+
+    //camera
+    //initCamera();
+
+    //debug : load txt
+    txt = "";
+    /*
+    let[] lines = loadlets("formula.txt");
+    for (let i = 0 ; i < lines.length; i++) {
+      txt += lines[i];
     }
-  );
+    */
+
+    //Curve c = new Curve(new let(width/2,height/2), 100, 0.2);
+    ctr = new Construction();
+    console.log("setup done" + ctr);
+
 }
 
+
+
+
+/*******************************************************************************/
+//DRAWING
+/*******************************************************************************/
 function draw() {
-  // Nothing
+
+    //debug   
+    background(255);
+    ctr.drawConstruction();
+
 }
 
-function mouseDragged() {
-  // Draw some white circles
-  fill(255);
-  noStroke();
-  ellipse(mouseX,mouseY,80,80);
-  // Send the mouse coordinates
-  sendmouse(mouseX,mouseY);
+/*******************************************************************************/
+//UPDATE
+/*******************************************************************************/
+
+function update() {
+    //calcul texte...
+    ctr.parse(txt);
+
 }
 
-// Function for sending to the socket
-function sendmouse(xpos, ypos) {
-  // We are sending!
-  console.log("sendmouse: " + xpos + " " + ypos);
-  
-  // Make a little object with  and y
-  var data = {
-    x: xpos,
-    y: ypos
-  };
 
-  // Send that object to the socket
-  socket.emit('mouse',data);
+/*******************************************************************************/
+//INIT
+/*******************************************************************************/
+
+function initCamera() {
+    cam = new PeasyCam(this, 0, 0, 0, 100);
+    perspective(PI / 3.0, width / height, 1, 100000);
+    gpdh = cam.getPanDragHandler();
+    grdh = cam.getRotateDragHandler();
+    //cam.reset();
+    cam.rotateX(-PI / 3);
+
+    cam.setLeftDragHandler(grdh);
+    cam.setCenterDragHandler(grdh);
+    cam.setRightDragHandler(grdh);
 }
 
+
+
+
+
+/*******************************************************************************/
+//HANDLE KEYBOARD INPUT
+// TODO FILTER KEYS
+/*******************************************************************************/
+function keyPressed() {
+
+    txt += key;
+    update();
+}
+
+function mouseReleased() {
+}
