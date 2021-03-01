@@ -1,14 +1,20 @@
 <html>
     <head>
+      <link rel="stylesheet" href="./app/style.css">
+
       <script language="javascript" type="text/javascript" src="./app/lib/p5.min.js"></script>
       <script language="javascript" type="text/javascript" src="./app/lib/pvector.js"></script>
       <script language="javascript" type="text/javascript" src="./app/lib/p5.easycam.min.js"></script>
-      <script language="javascript" type="text/javascript" src="./app/Curve.js"></script>
-      <script language="javascript" type="text/javascript" src="./app/Construction.js"></script>
+      <script language="javascript" type="text/javascript" src="./app/Layer.js"></script>
+      <script language="javascript" type="text/javascript" src="./app/Tube.js"></script>
       <script language="javascript" type="text/javascript" src="./app/sketch.js"></script>
     </head>
-    <body>
 
-        <textarea id="user_text"></textarea>
+
+    <body>
+        <div id="UI">
+          <label for="heightSlider">Height</label>
+        <input type="range" min="1" max="8" value="4" class="slider" id="heightSlider">
+        </div>
     </body>
   </html>

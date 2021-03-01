@@ -1,0 +1,17 @@
+#UI {
+    position : absolute;
+    width : 50vw;
+    height: 100vh;
+    right: 0;
+    background-color: grey;
+}
+
+#id {
+    position : absolute;
+    left: 0;
+}
+
+body {
+    margin : 0;
+    padding: 0;
+}
