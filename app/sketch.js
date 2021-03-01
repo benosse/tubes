@@ -1,3 +1,14 @@
+/*******************************************************************************/
+//UTILS
+/*******************************************************************************/
+function remap(value, low1, high1, low2, high2) {
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
+
+
+
+
+
 
 
 //dimensions
@@ -21,6 +32,14 @@ function setup() {
 
 
     //camera
+    let cam = createCamera();
+    
+    cam.lookAt(0,0,0);
+    cam.setPosition(-150,0,0);
+
+    cam.lookAt(0,0,0);
+
+    /*
     Dw.EasyCam.prototype.apply = function(n) {
         var o = this.cam;
         n = n || o.renderer,
@@ -29,6 +48,7 @@ function setup() {
 
     easycam = createEasyCam();
     easycam.setDistance(150, 0);
+    */
 
 
     //todo set default height to html slider
@@ -44,10 +64,24 @@ function setup() {
 //DOM INTERACTION
 /*******************************************************************************/
 function initCanvasEvents(){
-    // height goes from 1 to 8
+    // *************************************************************************
+    //height : from 0 to 100
+    //sound
+
+    //graphics : remap from 5 to 20
     let heightSlider = select("#heightSlider").elt;
     heightSlider .addEventListener('change', (event) => {
-        tube.setHeight(event.target.value * 10);
+        tube.setHeight(remap(event.target.value, 0, 100, 50, 100));
+      });
+
+    // *************************************************************************
+    //amplitude : from 0 to 100
+    //sound
+
+    //graphics : remap from 0 to 0.5
+    let amplitudeSlider = select("#amplitudeSlider").elt;
+    amplitudeSlider .addEventListener('change', (event) => {
+        tube.setAmplitude(remap(event.target.value, 0, 100, 0, 0.1));
       });
 
 
@@ -64,6 +98,12 @@ function draw() {
     //debug   
     background(255);
     
+    push();
+    //rotate on X (so Z is pointing upward)
+    rotateX(PI/2)
+    //tube revolution
+    //rotateZ(millis() / 1000);
     tube.drawTube();
+    pop();
 
 }

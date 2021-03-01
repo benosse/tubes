@@ -43,6 +43,16 @@ class Layer {
 
         rotate(this.rotation);
 
+        //draw lines
+        /*
+        for (let i = 0; i< this.nbPoints -1; i++) {
+            let p1 = this.points[i];
+            let p2 = this.points[i+1];
+            line(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+        }
+        */
+        
+        //draw curves
         beginShape();
         
         //last point
@@ -56,6 +66,8 @@ class Layer {
         curveVertex(this.points[1].x, this.points[1].y, this.points[1].z);
     
         endShape(CLOSE);
+        
+        
     
         
         pop();
