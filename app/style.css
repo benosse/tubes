@@ -6,9 +6,11 @@
     background-color: grey;
 }
 
-#id {
+#sketch {
     position : absolute;
     left: 0;
+    width : 50vw;
+    height: 100vh;
 }
 
 body {

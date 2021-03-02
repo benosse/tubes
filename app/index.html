@@ -2,22 +2,25 @@
     <head>
       <link rel="stylesheet" href="./app/style.css">
 
-      <script language="javascript" type="text/javascript" src="./app/lib/p5.min.js"></script>
-      <script language="javascript" type="text/javascript" src="./app/lib/pvector.js"></script>
-      <script language="javascript" type="text/javascript" src="./app/lib/p5.easycam.min.js"></script>
+      <script src="./app/lib/three.js"></script>
+
+
       <script language="javascript" type="text/javascript" src="./app/Layer.js"></script>
       <script language="javascript" type="text/javascript" src="./app/Tube.js"></script>
-      <script language="javascript" type="text/javascript" src="./app/sketch.js"></script>
+      
     </head>
 
 
     <body>
         <div id="UI">
           <label for="heightSlider">Height</label>
-          <input type="range" min="0" max="100" value="0" class="slider" id="heightSlider">
+          <input type="range" min="0" max="100" value="50" class="slider" id="heightSlider">
 
           <label for="amplitudeSlider">Amplitude</label>
-          <input type="range" min="0" max="100" value="0" class="slider" id="amplitudeSlider">
+          <input type="range" min="0" max="100" value="50" class="slider" id="amplitudeSlider">
         </div>
+
+        <script language="javascript" type="text/javascript" src="./app/sketch.js"></script>
+
     </body>
   </html>

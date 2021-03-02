@@ -4,8 +4,11 @@ class Layer {
     /*******************************************************************************/
     //CONSTRUCTOR
     /*******************************************************************************/
-    constructor(center, rotation, radius, nbPoints, amplitude){
+    constructor(center, rotation, radius, nbPoints, amplitude, material){
 
+        //Three related params
+        this.material = material;
+        this.geometry = null;
 
         this.center = center;
         this.radius = radius;
@@ -15,61 +18,51 @@ class Layer {
     
     
         this.points = new Array();
-    
         for (let i = 0; i < nbPoints; i++) {
             //texture
             let r = i % 2 == 0 ? radius : radius + radius * amplitude;
     
-            let v = new PVector(0, r);
-            v.rotateTo((TWO_PI / nbPoints) * i);
-            v.add(center);
-            this.points.push(v);
+            let v = new THREE.Vector2(0, r );
+            v.rotateAround(new THREE.Vector2(0, 0), this.rotation + ((2*Math.PI) / nbPoints) * i);
+            let point = new THREE.Vector3().addVectors(this.center, new THREE.Vector3(v.x, v.y, 0));
+            this.points.push(point);
+            
         }
     }
     
     
-    
-    /*******************************************************************************/
-    //DRAW
-    /*******************************************************************************/
-    drawLayer() {
+
+
+    createLayer() {
     
         if (this.nbPoints < 4) {
-            console.log("pas assez de points dans la couche : " + this.nbPoints);
+            console.log("not enough points : " + this.nbPoints);
             return;
         }
-    
-        push();
 
-        rotate(this.rotation);
 
-        //draw lines
-        /*
-        for (let i = 0; i< this.nbPoints -1; i++) {
-            let p1 = this.points[i];
-            let p2 = this.points[i+1];
-            line(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+        //create curve
+        let curve = new THREE.CatmullRomCurve3(this.points);
+        curve.closed = true;
+
+        //get geometry points
+        let geomPoints = curve.getPoints( 200 );
+
+
+        //create new geometry
+        this.geometry = new THREE.BufferGeometry().setFromPoints( geomPoints );
+        
+        // Create the final object to add to the scene
+        const curveObject = new THREE.Line( this.geometry, this.material );
+
+        return curveObject;
+    }
+
+
+    clearLayer() {
+        if (this.geometry != null) {
+            this.geometry.dispose();
         }
-        */
-        
-        //draw curves
-        beginShape();
-        
-        //last point
-        curveVertex(this.points[this.nbPoints - 1].x, this.points[this.nbPoints - 1].y, this.points[this.nbPoints - 1].z);
-        //points in-between
-        for (let i = 0; i < this.nbPoints; i++) {
-            curveVertex(this.points[i].x, this.points[i].y, this.points[i].z);
-        }
-        //first points
-        curveVertex(this.points[0].x, this.points[0].y, this.points[0].z);
-        curveVertex(this.points[1].x, this.points[1].y, this.points[1].z);
-    
-        endShape(CLOSE);
-        
-        
-    
-        
-        pop();
-    } 
+            
+    }
 }

@@ -7,103 +7,125 @@ function remap(value, low1, high1, low2, high2) {
 
 
 
+/*******************************************************************************/
+//PARAMS
+/*******************************************************************************/
+const MIN_SLIDER = 0;
+const MAX_SLIDER = 100;
+
+const MIN_HEIGHT = 10;
+const MAX_HEIGHT = 200;
+
+const MIN_AMPLITUDE = 0;
+const MAX_AMPLITUDE = 0.4;
+
+const rotationSpeed = 0.01;
+
+let WIDTH = window.innerWidth/2;
+let HEIGHT = window.innerHeight;
+
+const tube = new Tube();
+
+
+
+//sliders
+const heightSlider = document.getElementById("heightSlider");
+const amplitudeSlider = document.getElementById("amplitudeSlider");
+
+
+/*******************************************************************************/
+//THREE SETUP
+/*******************************************************************************/
+//scene
+const scene = new THREE.Scene();
+
+//camera
+const camera = new THREE.PerspectiveCamera( 75, WIDTH/HEIGHT, 0.1, 1000 );
+camera.position.z = 100;
+camera.position.x = 100;
+camera.lookAt(new THREE.Vector3(0,0,0));
+
+//renderer
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setSize( WIDTH, HEIGHT );
+
+renderer.domElement.id = "sketch"
+//todo : onresize and init window dimensions
+//renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
 
 
 
 
-//dimensions
-let screenWidth = 800;
-let screenHeight = 800;
+/*******************************************************************************/
+//INIT
+/*******************************************************************************/
+bindEvents();
+initTube();
+animate();
 
 
-//tmp
-let tube;
 
-var easycam;
-
-var canvas;
-
-
-function setup() {
-
-    canvas = createCanvas(windowWidth/2, windowHeight, WEBGL);
-    canvas.elt.id = "sketch";
-    background(255);
-
-
-    //camera
-    let cam = createCamera();
-    
-    cam.lookAt(0,0,0);
-    cam.setPosition(-150,0,0);
-
-    cam.lookAt(0,0,0);
-
-    /*
-    Dw.EasyCam.prototype.apply = function(n) {
-        var o = this.cam;
-        n = n || o.renderer,
-        n && (this.camEYE = this.getPosition(this.camEYE), this.camLAT = this.getCenter(this.camLAT), this.camRUP = this.getUpVector(this.camRUP), n._curCamera.camera(this.camEYE[0], this.camEYE[1], this.camEYE[2], this.camLAT[0], this.camLAT[1], this.camLAT[2], this.camRUP[0], this.camRUP[1], this.camRUP[2]))
-      };
-
-    easycam = createEasyCam();
-    easycam.setDistance(150, 0);
-    */
-
-
-    //todo set default height to html slider
-    tube = new Tube();
-
-    initCanvasEvents();
-    console.log("setup done");
-
+//animate
+function animate() {
+	requestAnimationFrame( animate );
+  tube.rotateTube(rotationSpeed);
+	renderer.render( scene, camera );
 }
+
+
+function update(){
+  //remove tube from scene
+  scene.remove(tube.group);
+  //clear previous tube
+  tube.clearTube();
+  //set new values for tube
+  tube.updateLayers();
+  //create new tube
+  tube.createTube();
+  //add tube to scene
+  scene.add(tube.group);
+}
+
 
 
 /*******************************************************************************/
 //DOM INTERACTION
 /*******************************************************************************/
-function initCanvasEvents(){
-    // *************************************************************************
-    //height : from 0 to 100
-    //sound
 
-    //graphics : remap from 5 to 20
-    let heightSlider = select("#heightSlider").elt;
-    heightSlider .addEventListener('change', (event) => {
-        tube.setHeight(remap(event.target.value, 0, 100, 50, 100));
-      });
+function bindEvents(){
+  window.addEventListener( 'resize', onWindowResize );
+  heightSlider.addEventListener('change', onHeightChange);
+  amplitudeSlider .addEventListener('change', onAmplitudeChange);
+}
 
-    // *************************************************************************
-    //amplitude : from 0 to 100
-    //sound
+function initTube(){
+  tube.height = remap(heightSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT);
+  tube.amplitude = remap(amplitudeSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
+  update();
+}
 
-    //graphics : remap from 0 to 0.5
-    let amplitudeSlider = select("#amplitudeSlider").elt;
-    amplitudeSlider .addEventListener('change', (event) => {
-        tube.setAmplitude(remap(event.target.value, 0, 100, 0, 0.1));
-      });
+function onHeightChange(event){
+  tube.height = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT);
+  update();
+}
 
-
+function onAmplitudeChange(event){
+  tube.amplitude = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
+  update();
 }
 
 
 
 
-/*******************************************************************************/
-//DRAWING
-/*******************************************************************************/
-function draw() {
+function onWindowResize() {
 
-    //debug   
-    background(255);
-    
-    push();
-    //rotate on X (so Z is pointing upward)
-    rotateX(PI/2)
-    //tube revolution
-    //rotateZ(millis() / 1000);
-    tube.drawTube();
-    pop();
+  WIDTH = window.innerWidth/2;
+  HEIGHT = window.innerHeight;
+  camera.aspect = WIDTH/HEIGHT;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( WIDTH, HEIGHT);
 
 }
