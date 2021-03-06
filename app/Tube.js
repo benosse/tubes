@@ -13,7 +13,7 @@ class Tube {
         
         this.radius = 40;
         this.height = 40;
-        this.layerOffset = 1;
+        this.layerOffset = 0.25;
 
         this.center = new THREE.Vector3(0,0,0);
 
@@ -33,6 +33,7 @@ class Tube {
     /*******************************************************************************/
     updateLayers() {
         this.nbLayers = Math.floor(this.height / this.layerOffset);
+        console.log(this.nbLayers);
 
         this.layers = [];
 
