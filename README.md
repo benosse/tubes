@@ -1,7 +1,7 @@
 # tubes
 puredata + three.js 
 
-#consts
+# consts
 nbLayersMax = 1000
 
 # params
