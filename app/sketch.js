@@ -10,6 +10,7 @@ function remap(value, low1, high1, low2, high2) {
 /*******************************************************************************/
 //PARAMS
 /*******************************************************************************/
+//sliders
 const MIN_SLIDER = 0;
 const MAX_SLIDER = 100;
 
@@ -22,8 +23,17 @@ const MAX_RADIUS = 100;
 const MIN_AMPLITUDE = 0;
 const MAX_AMPLITUDE = 0.4;
 
+
+//animation
 const rotationSpeed = 0.01;
 
+//camera
+const CAM_POS_X = 100;
+const CAM_POS_Y = 0;
+const CAM_POS_Z = 0;
+
+
+//canvas
 let WIDTH = window.innerWidth/2;
 let HEIGHT = window.innerHeight;
 
@@ -45,9 +55,9 @@ const scene = new THREE.Scene();
 
 //camera
 const camera = new THREE.PerspectiveCamera( 75, WIDTH/HEIGHT, 0.1, 1000 );
-camera.position.z = 100;
-camera.position.y = 100;
-camera.position.x = 100;
+camera.position.z = CAM_POS_Z;
+camera.position.y = CAM_POS_Y;
+camera.position.x = CAM_POS_X;
 camera.lookAt(new THREE.Vector3(0,0,0));
 
 //renderer
@@ -91,6 +101,12 @@ function update(){
   tube.createTube();
   //add tube to scene
   scene.add(tube.group);
+
+
+  //move camera to fit the whole tube
+  let fov = camera.fov * ( Math.PI / 180 ); 
+  let dist = tube.radius + tube.height/(2.5 * Math.sin(fov/2));
+  camera.position.x = dist;
 }
 
 
