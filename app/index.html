@@ -3,8 +3,9 @@
       <link rel="stylesheet" href="./app/style.css">
 
       <script src="./app/lib/three.js"></script>
+      <script type="text/javascript" src="./app/lib/paper/paper-full.min.js"></script>
 
-
+      <script language="javascript" type="text/javascript" src="./app/ControlCurve.js"></script>
       <script language="javascript" type="text/javascript" src="./app/Layer.js"></script>
       <script language="javascript" type="text/javascript" src="./app/Tube.js"></script>
       
@@ -19,9 +20,10 @@
           <label for="radiusSlider">Radius</label>
           <input type="range" min="0" max="100" value="50" class="slider" id="radiusSlider">
 
-          <label for="amplitudeSlider">Amplitude</label>
-          <input type="range" min="0" max="100" value="50" class="slider" id="amplitudeSlider">
+          <canvas id="controlCurve"></canvas>
         </div>
+
+        
 
         <script language="javascript" type="text/javascript" src="./app/sketch.js"></script>
 

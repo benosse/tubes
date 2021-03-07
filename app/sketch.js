@@ -38,12 +38,12 @@ let WIDTH = window.innerWidth/2;
 let HEIGHT = window.innerHeight;
 
 const tube = new Tube();
-
+//ctrlcurve with paper.js
+const cr= new ControlCurve("controlCurve");
 
 
 //sliders
 const heightSlider = document.getElementById("heightSlider");
-const amplitudeSlider = document.getElementById("amplitudeSlider");
 const radiusSlider = document.getElementById("radiusSlider");
 
 
@@ -79,6 +79,13 @@ document.body.appendChild( renderer.domElement );
 bindEvents();
 initTube();
 animate();
+
+
+cr.onNewValues = onAmplitudeChange;
+
+
+
+
 
 
 
@@ -118,28 +125,33 @@ function update(){
 function bindEvents(){
   window.addEventListener( 'resize', onWindowResize );
   heightSlider.addEventListener('change', onHeightChange);
-  amplitudeSlider.addEventListener('change', onAmplitudeChange);
   radiusSlider.addEventListener('change', onRadiusChange);
 }
 
 function initTube(){
-  tube.height = remap(heightSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT);
-  tube.amplitude = remap(amplitudeSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
+  tube.setHeight(remap(heightSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT));
+  /*tube.height = remap(heightSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT);*/
+  tube.radius = remap(radiusSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_RADIUS, MAX_RADIUS);
+  //tube.amplitude = remap(amplitudeSlider.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
+  tube.amplitudes = cr.getValues(tube.nbLayers);
+
   update();
 }
 
 function onHeightChange(event){
-  tube.height = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT);
+  tube.setHeight(remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT));
   update();
 }
 
-function onAmplitudeChange(event){
-  tube.amplitude = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
-  update();
-}
 
 function onRadiusChange(event){
   tube.radius = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_RADIUS, MAX_RADIUS);
+  update();
+}
+
+//callback of controlcurve
+function onAmplitudeChange(event){
+  tube.amplitudes = cr.getValues(tube.nbLayers).reverse();
   update();
 }
 
@@ -154,5 +166,9 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
 
   renderer.setSize( WIDTH, HEIGHT);
+
+
+  //also updates ctrl curves
+  cr.updateCanvasSize();
 
 }

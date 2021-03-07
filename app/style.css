@@ -17,3 +17,9 @@ body {
     margin : 0;
     padding: 0;
 }
+
+#controlCurve {
+    height : 100vh;
+    background-color: beige;
+    width : 200px;
+}

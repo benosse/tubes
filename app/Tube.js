@@ -25,18 +25,26 @@ class Tube {
 
         this.amplitude = 0.1;
 
+        //several amplitudes
+        this.amplitudes = [];
+
         //computes the layers for the first time
         this.updateLayers();
     }
 
-
+    /*******************************************************************************/
+    //SETTERS
+    /*******************************************************************************/
+    setHeight(value) {
+        this.height = value;
+        this.nbLayers = Math.floor(this.height / this.layerOffset);
+    }
 
     /*******************************************************************************/
     //UPDATE LAYERS
     /*******************************************************************************/
     updateLayers() {
-        this.nbLayers = Math.floor(this.height / this.layerOffset);
-        console.log(this.nbLayers);
+
 
         this.layers = [];
 
@@ -50,7 +58,8 @@ class Tube {
             //layer rotation
             let rotation = i%2 == 0 ? 0 : ((2*Math.PI)/nbPoints);
 
-            this.layers.push(new Layer(layerCenter, rotation, this.radius, nbPoints, this.amplitude, this.layerMaterial));
+            //this.layers.push(new Layer(layerCenter, rotation, this.radius, nbPoints, this.amplitude, this.layerMaterial));
+            this.layers.push(new Layer(layerCenter, rotation, this.radius, nbPoints, this.amplitudes[i], this.layerMaterial));
         }
     }
 
