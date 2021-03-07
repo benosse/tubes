@@ -6,14 +6,17 @@ class Tube {
     constructor() {
 
         //THREE group containing all layers
+        this.layersGroup = null;
+        //THREE group containing layersGroup and the tube
         this.group = null;
 
         //same material for all layers
-        this.material = new THREE.LineBasicMaterial( { color : 0xffffff } );
+        this.layerMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff} );
+        this.tubeMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
         
         this.radius = 40;
         this.height = 40;
-        this.layerOffset = 0.25;
+        this.layerOffset = 1;
 
         this.center = new THREE.Vector3(0,0,0);
 
@@ -47,7 +50,7 @@ class Tube {
             //layer rotation
             let rotation = i%2 == 0 ? 0 : ((2*Math.PI)/nbPoints);
 
-            this.layers.push(new Layer(layerCenter, rotation, this.radius, nbPoints, this.amplitude, this.material));
+            this.layers.push(new Layer(layerCenter, rotation, this.radius, nbPoints, this.amplitude, this.layerMaterial));
         }
     }
 
@@ -58,17 +61,25 @@ class Tube {
         //make new group
         this.group = new THREE.Group();
 
+        this.layersGroup = new THREE.Group();
+
         //get layers
         for (let i = 0; i < this.layers.length; i++) {
-            this.group.add(this.layers[i].createLayer());
+            this.layersGroup.add(this.layers[i].createLayer());
         }
 
-        //center tube
-        this.group.position.y = -this.height/2;
-        
-        //rotate tube
-        this.group.rotation.x = -Math.PI/2;
+        //rotate layers
+        this.layersGroup.rotation.x = -Math.PI/2;
 
+        this.group.add(this.layersGroup);
+
+        //inner cylinder
+        const geometry = new THREE.CylinderGeometry( this.radius, this.radius, this.height, 32 );
+        const cylinder = new THREE.Mesh( geometry, this.tubeMaterial);
+        this.group.add( cylinder );
+
+        //center tube
+        this.layersGroup.position.y = -this.height/2;
         
     }
 
@@ -80,12 +91,17 @@ class Tube {
             this.layers[i].clearLayer();
         }
         
-        //clear group
+        //clear groups
+        this.layersGroup = null;
         this.group = null;
+
+        //todo : clear inner tube?
+
     }
 
 
     rotateTube(speed){
-        this.group.rotation.z += speed;
+        //no need to rotate the tube, only rotate the layers
+        this.layersGroup.rotation.z += speed;
     }
 }

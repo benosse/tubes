@@ -16,6 +16,9 @@ const MAX_SLIDER = 100;
 const MIN_HEIGHT = 10;
 const MAX_HEIGHT = 200;
 
+const MIN_RADIUS= 10;
+const MAX_RADIUS = 100;
+
 const MIN_AMPLITUDE = 0;
 const MAX_AMPLITUDE = 0.4;
 
@@ -31,6 +34,7 @@ const tube = new Tube();
 //sliders
 const heightSlider = document.getElementById("heightSlider");
 const amplitudeSlider = document.getElementById("amplitudeSlider");
+const radiusSlider = document.getElementById("radiusSlider");
 
 
 /*******************************************************************************/
@@ -98,7 +102,8 @@ function update(){
 function bindEvents(){
   window.addEventListener( 'resize', onWindowResize );
   heightSlider.addEventListener('change', onHeightChange);
-  amplitudeSlider .addEventListener('change', onAmplitudeChange);
+  amplitudeSlider.addEventListener('change', onAmplitudeChange);
+  radiusSlider.addEventListener('change', onRadiusChange);
 }
 
 function initTube(){
@@ -114,6 +119,11 @@ function onHeightChange(event){
 
 function onAmplitudeChange(event){
   tube.amplitude = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_AMPLITUDE, MAX_AMPLITUDE);
+  update();
+}
+
+function onRadiusChange(event){
+  tube.radius = remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_RADIUS, MAX_RADIUS);
   update();
 }
 
