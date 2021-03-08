@@ -10,7 +10,6 @@ function remap(value, low1, high1, low2, high2) {
 /*******************************************************************************/
 //PARAMS
 /*******************************************************************************/
-const TIME_PER_LAYER = 40;
 //sliders
 const MIN_SLIDER = 0;
 const MAX_SLIDER = 100;
@@ -27,6 +26,7 @@ const MAX_AMPLITUDE = 0.4;
 
 //animation
 const rotationSpeed = 0.01;
+
 
 //camera
 const CAM_POS_X = 100;
@@ -87,28 +87,46 @@ var isMousePressed = false;
 var previousMousePos = null;
 var mousePos = null;
 
+var previousTime = 0;
+
 
 document.addEventListener('mousemove', (event) => {
+  
   if (!isMousePressed)
     return;
     
   if (previousMousePos == null)
     previousMousePos = {x:event.clientX, y:event.clientY};
+
+  //get mouse coordinates
   mousePos = {x:event.clientX, y:event.clientY};
 
   let distance = Math.abs(mousePos.y - previousMousePos.y);
+  let layerHeight = HEIGHT/tube.nbLayers;
+
   //hit layer
-  if (distance > HEIGHT/tube.nbLayers) {
+  if (distance > layerHeight) {
+    //save new pos
     previousMousePos.x = mousePos.x;
     previousMousePos.y = mousePos.y;
-    
-    pd.updateSlider_interpolation(TIME_PER_LAYER + 0.1);
+
+    //get speed
+    let nbLayersHit = Math.floor(distance/layerHeight);
+    let millis = Date.now();
+    let timePerLayer= Math.floor((millis - previousTime)/nbLayersHit );
+
+    //save new time
+    previousTime = millis;
+   
+    //console.log("mil "+timePerLayer);
+    pd.updateSlider_interpolation(timePerLayer + 0.1);
     
   }
 });
 
 document.addEventListener('mousedown', (event) => {
   isMousePressed = true;
+  previousTime = Date.now();
 });
 
 document.addEventListener('mouseup', (event) => {
@@ -121,24 +139,26 @@ document.addEventListener('mouseup', (event) => {
 
 
 //animate
-const FRAMES_PER_SECOND = 10;  
+
+const FRAMES_PER_SECOND = 30;  
 const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
 
 var lastFrameTime = 0;  // the last frame time
 
 
-function uupdate(time){
+function animate(time){
 
-    if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early
-        requestAnimationFrame(uupdate);
-        return; // return as there is nothing to do
+    if(time-lastFrameTime < FRAME_MIN_TIME){ 
+        requestAnimationFrame(animate);
+        return; 
     }
-    lastFrameTime = time; // remember the time of the rendered frame
-    animate();
-    
+    lastFrameTime = time;
 
-    // render the frame
-    requestAnimationFrame(uupdate); // get next farme
+    //animation
+    tube.rotateTube(rotationSpeed);
+	  renderer.render( scene, camera );
+    
+    requestAnimationFrame(animate); // 
 }
 
 
@@ -153,8 +173,7 @@ window.onload = function() {
   bindEvents();
   initTube();
   cr.onNewValues = onAmplitudeChange;
-  window.requestAnimationFrame(uupdate); // start animation
-
+  animate();
   console.log("end init")
 
 }
@@ -164,14 +183,6 @@ window.onload = function() {
 
 
 
-
-
-
-function animate() {
-  //getMouseSpeed();
-  tube.rotateTube(rotationSpeed);
-	renderer.render( scene, camera );
-}
 
 
 function update(){
