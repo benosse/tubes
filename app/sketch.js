@@ -140,6 +140,7 @@ function initTube(){
 
 function onHeightChange(event){
   tube.setHeight(remap(event.target.value, MIN_SLIDER, MAX_SLIDER, MIN_HEIGHT, MAX_HEIGHT));
+  tube.amplitudes = cr.getValues(tube.nbLayers).reverse();
   update();
 }
 
