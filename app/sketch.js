@@ -10,6 +10,7 @@ function remap(value, low1, high1, low2, high2) {
 /*******************************************************************************/
 //PARAMS
 /*******************************************************************************/
+const TIME_PER_LAYER = 40;
 //sliders
 const MIN_SLIDER = 0;
 const MAX_SLIDER = 100;
@@ -38,6 +39,7 @@ let WIDTH = window.innerWidth/2;
 let HEIGHT = window.innerHeight;
 
 const tube = new Tube();
+var pd;
 //ctrlcurve with paper.js
 const cr= new ControlCurve("controlCurve");
 
@@ -45,6 +47,10 @@ const cr= new ControlCurve("controlCurve");
 //sliders
 const heightSlider = document.getElementById("heightSlider");
 const radiusSlider = document.getElementById("radiusSlider");
+
+
+
+
 
 
 /*******************************************************************************/
@@ -73,16 +79,41 @@ document.body.appendChild( renderer.domElement );
 
 
 
+
 /*******************************************************************************/
-//INIT
+//MOUSE INTERACTIONS
 /*******************************************************************************/
-bindEvents();
-initTube();
-animate();
+var isMousePressed = false;
+var previousMousePos = null;
+var mousePos = null;
 
 
-cr.onNewValues = onAmplitudeChange;
+document.addEventListener('mousemove', (event) => {
+  if (!isMousePressed)
+    return;
+    
+  if (previousMousePos == null)
+    previousMousePos = {x:event.clientX, y:event.clientY};
+  mousePos = {x:event.clientX, y:event.clientY};
 
+  let distance = Math.abs(mousePos.y - previousMousePos.y);
+  //hit layer
+  if (distance > HEIGHT/tube.nbLayers) {
+    previousMousePos.x = mousePos.x;
+    previousMousePos.y = mousePos.y;
+    
+    pd.updateSlider_interpolation(TIME_PER_LAYER + 0.1);
+    
+  }
+});
+
+document.addEventListener('mousedown', (event) => {
+  isMousePressed = true;
+});
+
+document.addEventListener('mouseup', (event) => {
+  isMousePressed = false
+});
 
 
 
@@ -90,8 +121,54 @@ cr.onNewValues = onAmplitudeChange;
 
 
 //animate
+const FRAMES_PER_SECOND = 10;  
+const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
+
+var lastFrameTime = 0;  // the last frame time
+
+
+function uupdate(time){
+
+    if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early
+        requestAnimationFrame(uupdate);
+        return; // return as there is nothing to do
+    }
+    lastFrameTime = time; // remember the time of the rendered frame
+    animate();
+    
+
+    // render the frame
+    requestAnimationFrame(uupdate); // get next farme
+}
+
+
+
+
+/*******************************************************************************/
+//INIT
+/*******************************************************************************/
+
+window.onload = function() {
+  pd = new PDHandler();
+  bindEvents();
+  initTube();
+  cr.onNewValues = onAmplitudeChange;
+  window.requestAnimationFrame(uupdate); // start animation
+
+  console.log("end init")
+
+}
+
+
+
+
+
+
+
+
+
 function animate() {
-	requestAnimationFrame( animate );
+  //getMouseSpeed();
   tube.rotateTube(rotationSpeed);
 	renderer.render( scene, camera );
 }
