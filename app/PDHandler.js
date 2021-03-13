@@ -3,7 +3,7 @@ class PDHandler {
     /*******************************************************************************/
     //CONSTRUCTOR
     /*******************************************************************************/
-    constructor(){
+    constructor(callback){
         console.log("creating PDHandler")
         //pd variables
         this.webAssemblySupported = (typeof WebAssembly === 'object');
@@ -11,33 +11,31 @@ class PDHandler {
         this.loader = null;
 
         if (this.webAssemblySupported) {
-            this.heavyModule = printToSound_Module();
+            this.heavyModule = printToSoundV3_Module();
             this.heavyModule['onRuntimeInitialized'] = () =>{
                 console.log("this", this);
-                this.moduleLoaded()};
+                this.moduleLoaded(callback)};
           }
           else {
             console.warn("heavy: web assembly not found, falling back to asm.js");
         
             var script = document.createElement('script');
-            script.src = "./lib/pd/printToSound.asm.js";
+            script.src = "./lib/pd/printToSoundV3.asm.js";
             script.onload = () => {
-                console.log("this", this)
-              this.heavyModule = printToSound_AsmModule();
+              this.heavyModule = printToSoundV3_AsmModule();
               
-              this.moduleLoaded();
+              this.moduleLoaded(callback);
             }
             document.body.appendChild(script);
           }
     }
 
-    moduleLoaded() {
-        console.log("moduleloaded")
+    moduleLoaded(callback) {
         this.loader = new this.heavyModule.AudioLibLoader();
         
         this.loader.init({
           // optional: set audio processing block size, default is 2048
-          blockSize: 2048,
+          blockSize: 1024,
           // optional: provide a callback handler for [print] messages
           printHook: this.onPrint,
           // optional: provide a callback handler for [s {sendName} @hv_param] messages
@@ -47,20 +45,44 @@ class PDHandler {
           webAudioContext: null
         });
 
-        
-        this.start();
-        this.updateSlider_frequency(200.0);
-
+        callback();
     }
 
     start() {
         this.loader.start();
         console.log("pd started")
     }
+
+    setFPS(value) {
+        this.loader.audiolib.setFloatParameter("setFPS", value);
+    }
+
+    setNbLayers(value) {
+        this.loader.audiolib.setFloatParameter("setNbLayers", value);
+    }
+
+    setLayer(value) {
+        this.loader.audiolib.setFloatParameter("setLayer", value);
+    }
+
+    currentIndex(value) {
+        this.loader.audiolib.setFloatParameter("currentIndex", value);
+    }
+    
+    onMousePressed(value) {
+        this.loader.audiolib.setFloatParameter("onMousePressed", value);    
+    }
+
+    onMouseReleased(){
+        this.loader.audiolib.sendEvent("onMouseRelease");
+    }
       
     stop() {
         this.loader.stop();
     }
+
+
+    //buildin methods, todo remove
       
     toggleTransport(element) {
         (this.loader.isPlaying) ? this.stop() : this.start();

@@ -86,79 +86,31 @@ document.body.appendChild( renderer.domElement );
 var isMousePressed = false;
 var previousMousePos = null;
 var mousePos = null;
+var distance = 0;
 
-var previousTime = 0;
 
 
-document.addEventListener('mousemove', (event) => {
-  
-  if (!isMousePressed)
-    return;
-    
-  if (previousMousePos == null)
-    previousMousePos = {x:event.clientX, y:event.clientY};
+function updateMouse() {
 
-  //get mouse coordinates
-  mousePos = {x:event.clientX, y:event.clientY};
-
-  let distance = Math.abs(mousePos.y - previousMousePos.y);
-  let layerHeight = HEIGHT/tube.nbLayers;
-
-  //hit layer
-  if (distance > layerHeight) {
-    //save new pos
-    previousMousePos.x = mousePos.x;
-    previousMousePos.y = mousePos.y;
-
-    //get speed
-    let nbLayersHit = Math.floor(distance/layerHeight);
-    let millis = Date.now();
-    let timePerLayer= Math.floor((millis - previousTime)/nbLayersHit );
-
-    //save new time
-    previousTime = millis;
-   
-    //console.log("mil "+timePerLayer);
-    pd.updateSlider_interpolation(timePerLayer + 0.1);
-    
+  if (isMousePressed) {
+    let currentIndex = Math.floor(remap(mousePos.y, 0, HEIGHT, 0, tube.nbLayers));
+    pd.currentIndex(currentIndex)
+    console.log("index: " + currentIndex);
   }
-});
-
-document.addEventListener('mousedown', (event) => {
-  isMousePressed = true;
-  previousTime = Date.now();
-});
-
-document.addEventListener('mouseup', (event) => {
-  isMousePressed = false
-});
+  
+}
 
 
 
 
 
-
-//animate
-
-const FRAMES_PER_SECOND = 30;  
-const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
-
-var lastFrameTime = 0;  // the last frame time
+//milliseconds
+const FPS= 30;
 
 
-function animate(time){
-
-    if(time-lastFrameTime < FRAME_MIN_TIME){ 
-        requestAnimationFrame(animate);
-        return; 
-    }
-    lastFrameTime = time;
-
-    //animation
-    tube.rotateTube(rotationSpeed);
-	  renderer.render( scene, camera );
-    
-    requestAnimationFrame(animate); // 
+function animate(){
+  tube.rotateTube(rotationSpeed);
+	renderer.render( scene, camera );  
 }
 
 
@@ -167,13 +119,66 @@ function animate(time){
 /*******************************************************************************/
 //INIT
 /*******************************************************************************/
+function onPDReady() {
+  console.log("PDready");
+
+  pd.setFPS(FPS);
+  pd.setNbLayers(tube.nbLayers);
+  //set layers
+  for (let i=0; i<tube.nbLayers; i++) {
+    let amplitude = (i%10) < 1 ? i+0.99 : i+0.0
+
+    pd.setLayer(amplitude)
+  }
+  //start
+  pd.start();
+  
+  
+  //start watching mouse events
+  document.addEventListener('mousedown', (event) => {
+    isMousePressed = true;
+
+    console.log("d", distance)
+    pd.onMousePressed(distance);
+  });
+  
+  document.addEventListener('mouseup', (event) => {
+    isMousePressed = false
+    pd.onMouseReleased();
+  });
+  
+  document.addEventListener('mousemove', (event) => {
+    if (mousePos != null)
+      distance = Math.floor(Math.abs((event.clientY - mousePos.y) / (HEIGHT/tube.nbLayers)));
+    mousePos = {x:event.clientX, y:event.clientY};
+  });
+  
+
+
+  //launch global animation
+  setInterval(function(){
+    console.log("update")
+    //animate 3D
+    animate();
+    //set mouse events
+    updateMouse();
+
+  }, 1000/FPS)
+
+
+}
+
 
 window.onload = function() {
-  pd = new PDHandler();
+  pd = new PDHandler(onPDReady);
   bindEvents();
   initTube();
   cr.onNewValues = onAmplitudeChange;
-  animate();
+
+
+
+  
+
   console.log("end init")
 
 }

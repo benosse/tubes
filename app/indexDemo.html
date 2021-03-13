@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>printToSoundV3</title>
+
+    <!-- Generated javascript library includes -->
+    <script type="application/javascript" src="./printToSoundV3.js"></script>
+    <style>
+      .widget { max-width: 900px; margin: auto; }
+      .row { width: 100%; margin-bottom: 10px; }
+      .col { display: inline-block; }
+      .title { width: 80%; margin: 0 auto; }
+      .transport { padding-left: 10px; }
+      .parameter-name { width: 35%; text-align: right; }
+      .parameter-slider { width: 45%; padding-left: 10px; }
+      .parameter-slider input { vertical-align: middle; width: 100%; }
+      .parameter-value { width: 10%; padding-left: 10px; text-align: left; }
+      .link { margin: 10px 10px 0 0; float: right; }
+      span { text-align: right; }
+    </style>
+
+    <script type="text/javascript">
+
+      var webAssemblySupported = (typeof WebAssembly === 'object');
+      var heavyModule = null;
+      var loader = null;
+
+      window.onload = function() {
+        if (webAssemblySupported) {
+          heavyModule = printToSoundV3_Module();
+          heavyModule['onRuntimeInitialized'] = moduleLoaded;
+        }
+        else {
+          console.warn("heavy: web assembly not found, falling back to asm.js");
+
+          var script = document.createElement('script');
+          script.src = "printToSoundV3.asm.js";
+          script.onload = function() {
+            heavyModule = printToSoundV3_AsmModule();
+            moduleLoaded();
+          }
+          document.body.appendChild(script);
+        }
+        document.getElementById("transportButton").style.visibility = "hidden";
+      }
+
+      function moduleLoaded() {
+        loader = new heavyModule.AudioLibLoader();
+        loader.init({
+          // optional: set audio processing block size, default is 2048
+          blockSize: 1024,
+          // optional: provide a callback handler for [print] messages
+          printHook: onPrint,
+          // optional: provide a callback handler for [s {sendName} @hv_param] messages
+          sendHook: onFloatMessage,
+          // optional: pass an existing web audio context, otherwise a new one
+          // will be constructed.
+          webAudioContext: null
+        });
+        updateSlider_currentIndex(2.0);
+        updateSlider_cycleIO(0.0);
+        updateSlider_cycleSensIO(0.0);
+        updateSlider_cycleTime(8000.0);
+        updateSlider_cycleType(2.0);
+        updateSlider_onMousePressed(2.0);
+        updateSlider_setFPS(10.0);
+        updateSlider_setFrequency(110.0);
+        updateSlider_setLayer(0.0);
+        updateSlider_setNbLayers(1000.0);
+        document.getElementById("transportButton").style.visibility = "visible";
+      }
+
+      function start() {
+        loader.start();
+      }
+
+      function stop() {
+        loader.stop();
+      }
+
+      function toggleTransport(element) {
+        (loader.isPlaying) ? stop() : start();
+      }
+
+      function onPrint(message) {
+        console.log(message);
+      }
+
+      function onFloatMessage(sendName, floatValue) {
+        console.log(sendName, floatValue);
+      }
+
+      // Generated Event Update Methods
+      function sendEvent_onMouseRelease() {
+        loader.audiolib.sendEvent("onMouseRelease");
+      }
+
+      // Generated Parameter Update Methods
+      function updateSlider_currentIndex(value) {
+        document.getElementById("value_currentIndex").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("currentIndex", value);
+      }
+
+      function updateSlider_cycleIO(value) {
+        document.getElementById("value_cycleIO").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("cycleIO", value);
+      }
+
+      function updateSlider_cycleSensIO(value) {
+        document.getElementById("value_cycleSensIO").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("cycleSensIO", value);
+      }
+
+      function updateSlider_cycleTime(value) {
+        document.getElementById("value_cycleTime").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("cycleTime", value);
+      }
+
+      function updateSlider_cycleType(value) {
+        document.getElementById("value_cycleType").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("cycleType", value);
+      }
+
+      function updateSlider_onMousePressed(value) {
+        document.getElementById("value_onMousePressed").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("onMousePressed", value);
+      }
+
+      function updateSlider_setFPS(value) {
+        document.getElementById("value_setFPS").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("setFPS", value);
+      }
+
+      function updateSlider_setFrequency(value) {
+        document.getElementById("value_setFrequency").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("setFrequency", value);
+      }
+
+      function updateSlider_setLayer(value) {
+        document.getElementById("value_setLayer").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("setLayer", value);
+      }
+
+      function updateSlider_setNbLayers(value) {
+        document.getElementById("value_setNbLayers").textContent = Number(value).toFixed(2);
+        loader.audiolib.setFloatParameter("setNbLayers", value);
+      }
+
+    </script>
+  </head>
+  <body>
+    <div class="widget">
+      <div class="row title">
+        <div class="col"><h2>printToSoundV3</h2></div>
+        <div class="col transport">
+          <label>
+            start / stop
+            <input type="checkbox" id="transportButton" onchange="toggleTransport();">
+          </label>
+        </div>
+      </div>
+      <div class="row events">
+        <div class="col">
+          <button type="button" id="trigger_onMouseRelease" onclick="sendEvent_onMouseRelease();">onMouseRelease</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">currentIndex</div>
+        <div class="col parameter-slider">
+          <input id="parameter_currentIndex" type="range" min="0.0" max="1000.0" step="0.01" value="2.0" onchange="updateSlider_currentIndex(value);" oninput="updateSlider_currentIndex(value)">
+        </div>
+        <div class="col parameter-value" id="value_currentIndex">2.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">cycleIO</div>
+        <div class="col parameter-slider">
+          <input id="parameter_cycleIO" type="range" min="0.0" max="1.0" step="0.01" value="0.0" onchange="updateSlider_cycleIO(value);" oninput="updateSlider_cycleIO(value)">
+        </div>
+        <div class="col parameter-value" id="value_cycleIO">0.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">cycleSensIO</div>
+        <div class="col parameter-slider">
+          <input id="parameter_cycleSensIO" type="range" min="0.0" max="1.0" step="0.01" value="0.0" onchange="updateSlider_cycleSensIO(value);" oninput="updateSlider_cycleSensIO(value)">
+        </div>
+        <div class="col parameter-value" id="value_cycleSensIO">0.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">cycleTime</div>
+        <div class="col parameter-slider">
+          <input id="parameter_cycleTime" type="range" min="0.0" max="20000.0" step="0.01" value="8000.0" onchange="updateSlider_cycleTime(value);" oninput="updateSlider_cycleTime(value)">
+        </div>
+        <div class="col parameter-value" id="value_cycleTime">8000.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">cycleType</div>
+        <div class="col parameter-slider">
+          <input id="parameter_cycleType" type="range" min="0.0" max="4.0" step="0.01" value="2.0" onchange="updateSlider_cycleType(value);" oninput="updateSlider_cycleType(value)">
+        </div>
+        <div class="col parameter-value" id="value_cycleType">2.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">onMousePressed</div>
+        <div class="col parameter-slider">
+          <input id="parameter_onMousePressed" type="range" min="0.0" max="1000.0" step="0.01" value="2.0" onchange="updateSlider_onMousePressed(value);" oninput="updateSlider_onMousePressed(value)">
+        </div>
+        <div class="col parameter-value" id="value_onMousePressed">2.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">setFPS</div>
+        <div class="col parameter-slider">
+          <input id="parameter_setFPS" type="range" min="1.0" max="100.0" step="0.01" value="10.0" onchange="updateSlider_setFPS(value);" oninput="updateSlider_setFPS(value)">
+        </div>
+        <div class="col parameter-value" id="value_setFPS">10.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">setFrequency</div>
+        <div class="col parameter-slider">
+          <input id="parameter_setFrequency" type="range" min="0.0" max="2000.0" step="0.01" value="110.0" onchange="updateSlider_setFrequency(value);" oninput="updateSlider_setFrequency(value)">
+        </div>
+        <div class="col parameter-value" id="value_setFrequency">110.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">setLayer</div>
+        <div class="col parameter-slider">
+          <input id="parameter_setLayer" type="range" min="0.0" max="1000.0" step="0.01" value="0.0" onchange="updateSlider_setLayer(value);" oninput="updateSlider_setLayer(value)">
+        </div>
+        <div class="col parameter-value" id="value_setLayer">0.0</div>
+      </div>
+      <div class="row">
+        <div class="col parameter-name">setNbLayers</div>
+        <div class="col parameter-slider">
+          <input id="parameter_setNbLayers" type="range" min="0.0" max="1000.0" step="0.01" value="1000.0" onchange="updateSlider_setNbLayers(value);" oninput="updateSlider_setNbLayers(value)">
+        </div>
+        <div class="col parameter-value" id="value_setNbLayers">1000.0</div>
+      </div>
+      <div class="row">
+        <span class="link"><em>powered by <a href="https://enzienaudio.com"><strong>heavy</strong></em></a></span>
+      </div>
+    </div>
+  </body>
+</html>
