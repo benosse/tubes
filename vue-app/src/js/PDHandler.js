@@ -1,5 +1,8 @@
-import "./printToSoundV3.js";
-import "./printToSoundV3.asm.js";
+//import printToSoundV3Module from "./printToSoundV3.js";
+
+import * as printToSoundV3_AsmModule from "./printToSoundV3.asm.js";
+
+
 
 export default class PDHandler {
 
@@ -11,25 +14,29 @@ export default class PDHandler {
         this.webAssemblySupported = (typeof WebAssembly === 'object');
         this.heavyModule = null;
         this.loader = null;
-
+/*
         if (this.webAssemblySupported) {
-            this.heavyModule = printToSoundV3_Module();
+            
+            this.heavyModule = printToSoundV3Module();
+            
             this.heavyModule['onRuntimeInitialized'] = () =>{
-                console.log("this", this);
-                this.moduleLoaded(callback)};
-          }
-          else {
+                this.moduleLoaded(callback)
+            };
+
+        }
+        else {
+            */
             console.warn("heavy: web assembly not found, falling back to asm.js");
         
             var script = document.createElement('script');
-            script.src = "./lib/pd/printToSoundV3.asm.js";
+            script.src = "./printToSoundV3.asm.js";
             script.onload = () => {
               this.heavyModule = printToSoundV3_AsmModule();
               
               this.moduleLoaded(callback);
             }
             document.body.appendChild(script);
-          }
+        //}
     }
 
     moduleLoaded(callback) {

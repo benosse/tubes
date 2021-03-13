@@ -8,16 +8,19 @@
 
 
 //imports
-
-
 import * as THREE from "three";
 import Tube from "../js/Tube.js";
 import PDHandler from "../js/PDHandler.js";
 
 
-
+//divers (à mettre ailleurs sans doute)
 const ROTATION_SPEED = 0.01;
 const ANIM_FPS = 24;
+const PD_FPS = 10;
+
+function remap(value, low1, high1, low2, high2) {
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
 
 
 
@@ -41,6 +44,11 @@ export default {
 
       //pd
       pd:null,
+
+      //interaction
+      isMousePressed:false,
+      mousePos:null,
+      distance:null,
     }
   },
 
@@ -50,9 +58,8 @@ export default {
     this.initPD();
     this.updateScene();
 
-    //animation please
-    this.startAnimation();
-    //this.renderer.render( this.scene, this.camera );
+    //start graphics animation
+    setInterval(this.animate, 1000/ANIM_FPS)
 
     console.log("Scene3D mounted");
   },
@@ -60,7 +67,53 @@ export default {
   methods: {
 
     initPD() {
-      this.pd = new PDHandler(function(){console.log("pd init")});
+      this.pd = new PDHandler(this.startPD);
+    },
+
+    startPD() {
+      console.log("starting p22");
+      
+      this.pd.setNbLayers(this.tube.nbLayers);
+      //amplitude tmp
+      for (let i=0; i<this.tube.nbLayers; i++) {
+        let amplitude = (i%10) < 1 ? i+0.99 : i+0.0
+
+        this.pd.setLayer(amplitude)
+      }
+      console.log("euh")
+      this.pd.start();
+      
+      console.log("euh")
+      //start watching mouse events
+      this.$refs.threeContainer.addEventListener('mousedown', () => {
+        console.log("d", this.distance)
+        this.isMousePressed = true;
+        this.pd.onMousePressed(this.distance);
+      });
+      
+      this.$refs.threeContainer.addEventListener('mouseup', () => {
+        this.isMousePressed = false
+        this.pd.onMouseReleased();
+      });
+      
+      this.$refs.threeContainer.addEventListener('mousemove', (event) => {
+        if (this.mousePos != null)
+          this.distance = Math.floor(Math.abs((event.clientY - this.mousePos.y) / (this.dimensions.height/this.tube.nbLayers)));
+        this.mousePos = {x:event.clientX, y:event.clientY};
+      });
+
+      console.log("start");
+      setInterval(this.updateMousePosition, 1000/PD_FPS)
+    },
+
+
+    updateMousePosition() {
+      console.log("up")
+      if (this.isMousePressed) {
+        let currentIndex = Math.floor(remap(this.mousePos.y, 0, this.dimensions.height, 0, this.tube.nbLayers));
+        console.log("up", currentIndex)
+        this.pd.currentIndex(currentIndex);
+      } 
     },
 
 
@@ -105,12 +158,10 @@ export default {
       let container = this.$refs.threeContainer;
       this.renderer.domElement.id = "sketch"
       container.appendChild( this.renderer.domElement );
-    },
 
-    //animation at 30 FPS
-    startAnimation() {
       setInterval(this.animate, 1000/ANIM_FPS)
     },
+
 
 
     //rotate tube and refresh renderer
