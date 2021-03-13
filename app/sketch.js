@@ -105,7 +105,7 @@ function updateMouse() {
 
 
 //milliseconds
-const FPS= 30;
+const FPS= 10;
 
 
 function animate(){
@@ -122,7 +122,9 @@ function animate(){
 function onPDReady() {
   console.log("PDready");
 
-  pd.setFPS(FPS);
+  //ne sert à rien pour le moment
+  //pd.setFPS(FPS);
+
   pd.setNbLayers(tube.nbLayers);
   //set layers
   for (let i=0; i<tube.nbLayers; i++) {
