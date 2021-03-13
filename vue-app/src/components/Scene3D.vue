@@ -145,7 +145,7 @@ export default {
       //tube.amplitudes = cr.getValues(tube.nbLayers);
       let amplitudes = []
       for (let i=0; i< this.tube.nbLayers; i++) {
-        amplitudes.push(0.03);
+        amplitudes.push(i%2==0?0:0.02);
       }
       this.tube.amplitudes = amplitudes;
 

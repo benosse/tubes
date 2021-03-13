@@ -155,7 +155,7 @@ export default  class Tube {
         this.group.add(this.layersGroup);
 
         //inner cylinder
-        const geometry = new THREE.CylinderGeometry( this.radius, this.radius, this.height, 32 );
+        const geometry = new THREE.CylinderGeometry( this.radius*0.95, this.radius, this.height, 32 );
         const cylinder = new THREE.Mesh( geometry, this.tubeMaterial);
         this.group.add( cylinder );
 

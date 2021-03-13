@@ -6,7 +6,6 @@ export default class ControlCurve {
     /*******************************************************************************/
     constructor(canvasId){
 
-        
         this.canvas = document.getElementById(canvasId);
 
         paper.setup(this.canvas);
