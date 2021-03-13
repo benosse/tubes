@@ -1,5 +1,10 @@
 <template>
-  <div class="Scene3D" ref="threeContainer" :style="computedStyle">
+  <div id="scene3D" ref="threeContainer" 
+    :style="computedStyle"
+    @mousedown="onMousePressed"
+    @mouseup="onMouseReleased"
+    @mousemove="onMouseMove"
+  >
   </div>
 </template>
 
@@ -46,9 +51,12 @@ export default {
       pd:null,
 
       //interaction
-      isMousePressed:false,
-      mousePos:null,
-      distance:null,
+      interaction: {
+        trackPos:false,
+        isMousePressed:false,
+        mousePos:null,
+        distance:null,
+      }
     }
   },
 
@@ -71,8 +79,7 @@ export default {
     },
 
     startPD() {
-      console.log("starting p22");
-      
+     
       this.pd.setNbLayers(this.tube.nbLayers);
       //amplitude tmp
       for (let i=0; i<this.tube.nbLayers; i++) {
@@ -80,40 +87,52 @@ export default {
 
         this.pd.setLayer(amplitude)
       }
-      console.log("euh")
+
       this.pd.start();
       
-      console.log("euh")
       //start watching mouse events
-      this.$refs.threeContainer.addEventListener('mousedown', () => {
-        console.log("d", this.distance)
-        this.isMousePressed = true;
-        this.pd.onMousePressed(this.distance);
-      });
-      
-      this.$refs.threeContainer.addEventListener('mouseup', () => {
-        this.isMousePressed = false
-        this.pd.onMouseReleased();
-      });
-      
-      this.$refs.threeContainer.addEventListener('mousemove', (event) => {
-        if (this.mousePos != null)
-          this.distance = Math.floor(Math.abs((event.clientY - this.mousePos.y) / (this.dimensions.height/this.tube.nbLayers)));
-        this.mousePos = {x:event.clientX, y:event.clientY};
-      });
+      this.interaction.trackPos = true;
+      setInterval(this.updateMousePosition, 1000/PD_FPS);
 
-      console.log("start");
-      setInterval(this.updateMousePosition, 1000/PD_FPS)
+    },
+
+
+    onMousePressed() {
+      if (!this.interaction.trackPos)
+        return;
+
+      this.interaction.isMousePressed = true;
+      this.pd.onMousePressed(this.interaction.distance);
+    },
+
+
+    onMouseReleased(){
+       if (!this.interaction.trackPos)
+        return;
+
+      this.interaction.isMousePressed = false
+      this.pd.onMouseReleased();
+    },
+
+
+    onMouseMove(event) {
+       if (!this.interaction.trackPos)
+        return;
+
+      if (this.interaction.mousePos != null)
+        this.interaction.distance = Math.floor(Math.abs((event.clientY - this.interaction.mousePos.y) / (this.dimensions.height/this.tube.nbLayers)));
+
+      this.interaction.mousePos = {x:event.clientX, y:event.clientY};
     },
 
 
     updateMousePosition() {
-      console.log("up")
-      if (this.isMousePressed) {
-        let currentIndex = Math.floor(remap(this.mousePos.y, 0, this.dimensions.height, 0, this.tube.nbLayers));
-        console.log("up", currentIndex)
-        this.pd.currentIndex(currentIndex);
-      } 
+      if (!this.interaction.trackPos || !this.interaction.isMousePressed)
+        return;
+      
+      let currentIndex = Math.floor(remap(this.interaction.mousePos.y, 0, this.dimensions.height, 0, this.tube.nbLayers));
+      this.pd.currentIndex(currentIndex);
+    
     },
 
 
@@ -126,7 +145,7 @@ export default {
       //tube.amplitudes = cr.getValues(tube.nbLayers);
       let amplitudes = []
       for (let i=0; i< this.tube.nbLayers; i++) {
-        amplitudes.push(0.1);
+        amplitudes.push(0.03);
       }
       this.tube.amplitudes = amplitudes;
 
@@ -150,7 +169,7 @@ export default {
 
       //renderer
       this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-      this.renderer.setClearColor( 0xffffff, 1 );
+      this.renderer.setClearColor( 0x000000, 1 );
       this.renderer.setPixelRatio( window.devicePixelRatio );
       this.renderer.setSize( w, h );
 
@@ -192,13 +211,13 @@ export default {
       
       let w = this.dimensions.width;
       let h = this.dimensions.height;
-      console.log("resize: ", w, h)
 
       this.camera.aspect = w/h;
       this.camera.updateProjectionMatrix();
 
       this.renderer.setSize( w, h);
       this.renderer.render( this.scene, this.camera );
+
     },
 
 
@@ -217,11 +236,11 @@ export default {
   computed: {
     computedStyle:function() {
       return {
-        "width":this.dimensions.width + "px;",
-        "height":this.dimensions.height + "px;",
+        "width":this.dimensions.width + "px",
+        "height":this.dimensions.height + "px",
       }
     }
-  }
+  },
 
 }
 
@@ -229,4 +248,8 @@ export default {
 
 
 <style scoped>
+#scene3D {
+  margin-left:auto;
+  margin-right:auto;
+}
 </style>

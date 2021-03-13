@@ -1,4 +1,4 @@
-class ControlCurve {
+export default class ControlCurve {
   
 
     /*******************************************************************************/

@@ -79,8 +79,8 @@ export default  class Tube {
         this.group = null;
 
         //same material for all layers
-        this.layerMaterial = new THREE.MeshBasicMaterial( { color: 0x000000} );
-        this.tubeMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        this.layerMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff} );
+        this.tubeMaterial = new THREE.MeshBasicMaterial( {color: 0x000000} );
         
         this.radius = 40;
         this.height = 40;
